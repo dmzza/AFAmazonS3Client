@@ -227,19 +227,9 @@ NSString * const AFAmazonS3ManagerErrorDomain = @"com.alamofire.networking.s3.er
     NSData *data = [NSURLConnection sendSynchronousRequest:fileRequest returningResponse:&response error:&fileError];
 	
     if (data && response) {
-        NSMutableURLRequest *request = [self.requestSerializer multipartFormRequestWithMethod:method URLString:[[self.baseURL URLByAppendingPathComponent:destinationPath] absoluteString] parameters:parameters constructingBodyWithBlock:^(id <AFMultipartFormData> formData) {
-            if (![parameters valueForKey:@"key"]) {
-                [formData appendPartWithFormData:[[filePath lastPathComponent] dataUsingEncoding:NSUTF8StringEncoding] name:@"key"];
-            }
-            [formData appendPartWithFileData:data name:@"file" fileName:[filePath lastPathComponent] mimeType:[response MIMEType]];
-        } error:nil];
-
-//        NSURL *temporaryFileURL = [NSURL fileURLWithPath:[NSTemporaryDirectory() stringByAppendingPathComponent:[[NSUUID UUID] UUIDString]]];
-//        request = [self.requestSerializer requestWithMultipartFormRequest:request writingStreamContentsToFile:temporaryFileURL completionHandler:^(NSError *error) {
-//            if (!error) {
-//                [request setHTTPBody:[NSData dataWithContentsOfFile:[temporaryFileURL absoluteString]]];
-//            }
-//        }];
+        
+        NSMutableURLRequest *request = [self.requestSerializer requestWithMethod:method URLString:[[self.baseURL URLByAppendingPathComponent:destinationPath] absoluteString] parameters:parameters error:nil];
+        request.HTTPBody = data;
 
         AFHTTPRequestOperation *requestOperation = [self HTTPRequestOperationWithRequest:request success:^(__unused AFHTTPRequestOperation *operation, id responseObject) {
             if (success) {
